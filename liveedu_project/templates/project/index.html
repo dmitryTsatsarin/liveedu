@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block custom_script %}
+
+    <script>
+        $(function () {
+            console.log("ready!");
+            $.ajax({
+                url: "/project/list/",
+                data: {},
+                success: function (result) {
+                    $("#project_table tr").remove();
+                    $("#project_table tbody").append('<tr><th>Title</th><th>User</th><th>Description</th><th>Rating</th></tr>');
+                    $("#test2").val("1");
+                    $.each(result, function (index, value) {
+
+                        $("#project_table tbody").append('<tr><td>' + value.title + '</td><td>' + value.user + '</td><td>' + value.description + '</td><td><select class="rating" project_id=' + value.id + ' >\n' +
+                            '  <option value="0">0</option>\n' +
+                            '  <option value="1">1</option>\n' +
+                            '  <option value="2">2</option>\n' +
+                            '  <option value="3">3</option>\n' +
+                            '  <option value="4">4</option>\n' +
+                            '  <option value="5">5</option>\n' +
+                            '</select></td></tr>');
+                        $("#project_table tbody select:last").val(value.rate);
+                    });
+
+
+                    // correct work with "select" tag
+                    $(".rating").change(function () {
+                        $.ajax({
+                            method: "POST",
+                            url: "/project/rate/",
+                            data: {
+                                project_id: $(this).attr('project_id'),
+                                rate: $(this).val(),
+                            },
+                            success: function (result) {
+                                alert('Your rating was saved')
+                            },
+                            error: function (e) {
+                                console.log(e);
+                                alert(e.responseJSON.message)
+                            },
+
+                        });
+
+
+                    });
+                },
+            });
+
+            // construct table of users
+            $.ajax({
+                url: "/project/user/list/",
+                data: {},
+                success: function (result) {
+
+                    $("#users_table tr").remove();
+                    $("#users_table tbody").append('<tr><th>Id</th><th>Username</th></tr>');
+                    $.each(result, function (index, value) {
+                        $("#users_table tbody").append('<tr><td>' + value.id + '</td><td>' + value.username + '</td></tr>');
+                    });
+                },
+
+
+            });
+
+
+        });
+
+
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="divTable">
+        <div class="divTableBody">
+            <div class="divTableRow">
+                <div class="divTableCell">
+                    Projects:
+                    <table id="project_table" width="500px" border="1" sol>
+                        <tr>
+                            <td>empty</td>
+                        </tr>
+                    </table>
+                </div>
+
+
+                <div class="divTableCell">
+                    Users
+                    <table id="users_table" width="500px" border="1" sol>
+                        <tr>
+                            <td>empty</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
